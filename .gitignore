@@ -20,6 +20,9 @@
 # production
 /build
 
+# private evidence staging
+/private/evidence/
+
 # misc
 .DS_Store
 *.pem

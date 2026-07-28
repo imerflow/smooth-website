@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SmoothScroll } from "@/components/ui/SmoothScroll";
+import { CustomCursor } from "@/components/ui/CustomCursor";
+import { siteMeta } from "@/data/cas-content";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,9 +16,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Iker López — CAS Portfolio",
+  title: {
+    default: `${siteMeta.name} — ${siteMeta.title}`,
+    template: `%s | ${siteMeta.name}`,
+  },
   description:
-    "Iker López’s IB Creativity, Activity and Service portfolio, documenting experiences, reflection and personal development.",
+    "An IB Creativity, Activity and Service portfolio documenting experiences, evidence, learning outcomes and reflection.",
   keywords: [
     "Iker López",
     "CAS portfolio",
@@ -24,7 +30,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Iker López" }],
   openGraph: {
-    title: "Iker López — CAS Portfolio",
+    title: `${siteMeta.name} — ${siteMeta.title}`,
     description:
       "A considered record of creativity, activity, service and reflection.",
     type: "website",
@@ -32,7 +38,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Iker López — CAS Portfolio",
+    title: `${siteMeta.name} — ${siteMeta.title}`,
     description:
       "A considered record of creativity, activity, service and reflection.",
   },
@@ -48,7 +54,14 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <a className="skip-link" href="#main-content">
+          Skip to content
+        </a>
+        <SmoothScroll />
+        <CustomCursor />
+        {children}
+      </body>
     </html>
   );
 }
