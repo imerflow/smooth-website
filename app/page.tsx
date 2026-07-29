@@ -7,6 +7,7 @@ import { LearningOutcomes } from "@/components/sections/LearningOutcomes";
 import { MonthlyReflections } from "@/components/sections/MonthlyReflections";
 import { EvidencePreview } from "@/components/sections/EvidencePreview";
 import { ClosingSection } from "@/components/sections/ClosingSection";
+import { KineticType } from "@/components/motion/KineticType";
 import {
   getPublicFeaturedMediaBySlug,
   getPublishedEvidenceCategoryStatuses,
@@ -23,9 +24,10 @@ export default function Home() {
     <main className="site-shell">
       <SiteHeader />
       <Hero />
+      <KineticType />
       <CasOverview />
       <FeaturedExperiences featuredMediaBySlug={featuredMediaBySlug} />
-      <ExperienceTimeline />
+      <ExperienceTimeline previewMediaBySlug={featuredMediaBySlug} />
       <LearningOutcomes />
       <MonthlyReflections />
       <EvidencePreview

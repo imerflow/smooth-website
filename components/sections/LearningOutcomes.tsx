@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   experiences,
@@ -10,6 +9,7 @@ import {
 } from "@/data/cas-content";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionLabel } from "@/components/ui/SectionLabel";
+import { RouteLink } from "@/components/ui/RouteLink";
 
 export function LearningOutcomes() {
   const [active, setActive] = useState<OutcomeId>("RA1");
@@ -41,8 +41,8 @@ export function LearningOutcomes() {
 
       <div className="outcomes-layout">
         <div className="outcome-tabs" role="tablist" aria-label="Learning outcomes">
-          {learningOutcomes.map((item) => (
-            <button
+          {learningOutcomes.map((item, index) => (
+            <motion.button
               key={item.id}
               type="button"
               role="tab"
@@ -50,11 +50,19 @@ export function LearningOutcomes() {
               aria-selected={active === item.id}
               aria-controls="outcome-panel"
               onClick={() => setActive(item.id)}
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, amount: 0.65 }}
+              transition={{
+                duration: 0.62,
+                delay: index * 0.065,
+                ease: [0.16, 1, 0.3, 1],
+              }}
             >
               <span>{item.id}</span>
               <span>{item.title}</span>
               <span>{experiences.filter((exp) => exp.outcomes.includes(item.id)).length}</span>
-            </button>
+            </motion.button>
           ))}
         </div>
 
@@ -67,10 +75,10 @@ export function LearningOutcomes() {
           <AnimatePresence mode="wait">
             <motion.div
               key={active}
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 46, scale: 0.94 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.32 }}
+              exit={{ opacity: 0, y: -30, scale: 0.97 }}
+              transition={{ duration: 0.58, ease: [0.16, 1, 0.3, 1] }}
             >
               <p className="outcome-id">{outcome.id}</p>
               <h3>{outcome.title}</h3>
@@ -86,13 +94,14 @@ export function LearningOutcomes() {
               <div className="outcome-matches">
                 <h4>Matching experiences</h4>
                 {matches.map((experience) => (
-                  <Link
+                  <RouteLink
                     href={`/experiences/${experience.slug}`}
                     key={experience.slug}
+                    transitionLabel={experience.shortTitle}
                   >
                     {experience.shortTitle}
                     <span aria-hidden="true">↗</span>
-                  </Link>
+                  </RouteLink>
                 ))}
               </div>
             </motion.div>

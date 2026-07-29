@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import {
   featuredExperiences,
   type ExperienceMedia,
@@ -19,6 +19,7 @@ export function FeaturedExperiences({
 }: {
   featuredMediaBySlug: Record<string, PublicFeaturedImage>;
 }) {
+  const reduceMotion = useReducedMotion();
   const orderedExperiences = [...featuredExperiences].sort(
     (first, second) =>
       Number(Boolean(featuredMediaBySlug[second.slug])) -
@@ -69,6 +70,25 @@ export function FeaturedExperiences({
                 href={`/experiences/${experience.slug}`}
                 className="featured-link"
                 ariaLabel={`Read ${experience.title}`}
+                transitionLabel={experience.shortTitle}
+                dataCursor="OPEN"
+                onPointerMove={(event) => {
+                  if (event.pointerType !== "mouse") return;
+                  const bounds = event.currentTarget.getBoundingClientRect();
+                  const x = (event.clientX - bounds.left) / bounds.width - 0.5;
+                  const y = (event.clientY - bounds.top) / bounds.height - 0.5;
+                  event.currentTarget.style.setProperty("--magnetic-x", `${x * 5}px`);
+                  event.currentTarget.style.setProperty("--magnetic-y", `${y * 4}px`);
+                  event.currentTarget.style.setProperty(
+                    "--magnetic-rotate",
+                    `${x * 1.5}deg`,
+                  );
+                }}
+                onPointerLeave={(event) => {
+                  event.currentTarget.style.setProperty("--magnetic-x", "0px");
+                  event.currentTarget.style.setProperty("--magnetic-y", "0px");
+                  event.currentTarget.style.setProperty("--magnetic-rotate", "0deg");
+                }}
               >
                 <div className="featured-top">
                   <span>0{index + 1}</span>
@@ -79,12 +99,41 @@ export function FeaturedExperiences({
                   aria-hidden={featuredMedia ? undefined : true}
                 >
                   {featuredMedia ? (
-                    <Image
-                      src={featuredMedia.src}
-                      alt={featuredMedia.alt}
-                      fill
-                      sizes="(max-width: 700px) 86vw, (max-width: 1100px) 78vw, 770px"
-                    />
+                    <motion.div
+                      className="featured-media-reveal"
+                      initial={
+                        reduceMotion
+                          ? { opacity: 0 }
+                          : {
+                              clipPath: "inset(100% 0 0 0)",
+                              y: 46,
+                              scale: 1.08,
+                            }
+                      }
+                      whileInView={{
+                        opacity: 1,
+                        clipPath: "inset(0% 0 0 0)",
+                        y: 0,
+                        scale: 1,
+                      }}
+                      viewport={{ once: true, amount: 0.22 }}
+                      transition={{
+                        duration: reduceMotion
+                          ? 0.18
+                          : experience.slug === "nasa-space-apps"
+                            ? 1.08
+                            : 0.9,
+                        delay: reduceMotion ? 0 : 0.12,
+                        ease: [0.16, 1, 0.3, 1],
+                      }}
+                    >
+                      <Image
+                        src={featuredMedia.src}
+                        alt={featuredMedia.alt}
+                        fill
+                        sizes="(max-width: 700px) 86vw, (max-width: 1100px) 78vw, 770px"
+                      />
+                    </motion.div>
                   ) : (
                     <>
                       <span>

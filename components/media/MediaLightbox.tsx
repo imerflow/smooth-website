@@ -82,10 +82,10 @@ export function MediaLightbox({
         ref={dialogRef}
         onClick={(event) => event.stopPropagation()}
         onPointerDown={(event) => {
-          if (event.pointerType === "touch") touchStart.current = event.clientX;
+          if (event.isPrimary) touchStart.current = event.clientX;
         }}
         onPointerUp={(event) => {
-          if (event.pointerType !== "touch" || touchStart.current === null) return;
+          if (!event.isPrimary || touchStart.current === null) return;
           const distance = event.clientX - touchStart.current;
           if (Math.abs(distance) > 45 && items.length > 1) {
             if (distance > 0) showPrevious();
@@ -104,23 +104,31 @@ export function MediaLightbox({
           </button>
         </div>
 
-        <div className="lightbox-stage">
-          {active.type === "image" ? (
-            <div
-              className="lightbox-image"
-              style={{ aspectRatio: `${active.width} / ${active.height}` }}
-            >
-              <Image
-                src={active.src}
-                alt={active.alt}
-                fill
-                sizes="95vw"
-                priority
-              />
-            </div>
-          ) : (
-            <VideoPlayer media={active} className="lightbox-video" />
-          )}
+        <div className="lightbox-stage" data-cursor="DRAG">
+          <motion.div
+            className="lightbox-media-frame"
+            key={active.src}
+            initial={{ opacity: 0, x: 12 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {active.type === "image" ? (
+              <div
+                className="lightbox-image"
+                style={{ aspectRatio: `${active.width} / ${active.height}` }}
+              >
+                <Image
+                  src={active.src}
+                  alt={active.alt}
+                  fill
+                  sizes="95vw"
+                  priority
+                />
+              </div>
+            ) : (
+              <VideoPlayer media={active} className="lightbox-video" />
+            )}
+          </motion.div>
         </div>
 
         <div className="lightbox-footer">

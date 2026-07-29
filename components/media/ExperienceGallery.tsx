@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence } from "framer-motion";
 import type {
   ExperienceMedia,
@@ -11,6 +12,10 @@ import { MediaCard } from "./MediaCard";
 import { MediaLightbox } from "./MediaLightbox";
 
 type VisualMedia = Extract<ExperienceMedia, { type: "image" | "video" }>;
+
+function subscribeToHydration() {
+  return () => {};
+}
 
 export function ExperienceGallery({
   media,
@@ -26,6 +31,11 @@ export function ExperienceGallery({
   privacyNote?: string;
 }) {
   const [selected, setSelected] = useState<number | null>(null);
+  const hydrated = useSyncExternalStore(
+    subscribeToHydration,
+    () => true,
+    () => false,
+  );
   const publicMedia = media.filter((item) => item.privacy === "public");
   const visualMedia = publicMedia.filter(
     (item): item is VisualMedia =>
@@ -91,15 +101,19 @@ export function ExperienceGallery({
         })}
       </div>
       {privacyNote && <p className="gallery-privacy">{privacyNote}</p>}
-      <AnimatePresence>
-        {selected !== null && (
-          <MediaLightbox
-            items={visualMedia}
-            initialIndex={selected}
-            onClose={() => setSelected(null)}
-          />
+      {hydrated &&
+        createPortal(
+          <AnimatePresence>
+            {selected !== null && (
+              <MediaLightbox
+                items={visualMedia}
+                initialIndex={selected}
+                onClose={() => setSelected(null)}
+              />
+            )}
+          </AnimatePresence>,
+          document.body,
         )}
-      </AnimatePresence>
     </>
   );
 }

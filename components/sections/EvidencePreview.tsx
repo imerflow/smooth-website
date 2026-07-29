@@ -153,6 +153,7 @@ export function EvidencePreview({
         {evidenceGroups.map((group, index) => (
           <motion.button
             type="button"
+            data-cursor="VIEW"
             key={group.label}
             onClick={() => setSelection(group)}
             initial={{ opacity: 0, y: 24 }}

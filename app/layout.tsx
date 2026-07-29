@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { SmoothScroll } from "@/components/ui/SmoothScroll";
 import { CustomCursor } from "@/components/ui/CustomCursor";
+import { MotionSystem } from "@/components/motion/MotionSystem";
 import { siteMeta } from "@/data/cas-content";
 import "./globals.css";
 
@@ -59,8 +60,10 @@ export default function RootLayout({
           Skip to content
         </a>
         <SmoothScroll />
-        <CustomCursor />
-        {children}
+        <MotionSystem>
+          <CustomCursor />
+          {children}
+        </MotionSystem>
       </body>
     </html>
   );

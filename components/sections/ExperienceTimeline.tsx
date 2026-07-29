@@ -1,15 +1,17 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import Link from "next/link";
-import { motion } from "framer-motion";
+import { useMemo, useRef, useState } from "react";
+import Image from "next/image";
+import { motion, useReducedMotion, useScroll, useSpring } from "framer-motion";
 import {
   experiences,
   type CasStrand,
   type Experience,
+  type ExperienceMedia,
 } from "@/data/cas-content";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Reveal } from "@/components/ui/Reveal";
+import { RouteLink } from "@/components/ui/RouteLink";
 
 type TimelineGroup = {
   label: string;
@@ -55,8 +57,28 @@ function getExperience(slug: string) {
   return experiences.find((experience) => experience.slug === slug);
 }
 
-export function ExperienceTimeline() {
+type PublicPreview = Extract<ExperienceMedia, { type: "image" }> & {
+  privacy: "public";
+};
+
+export function ExperienceTimeline({
+  previewMediaBySlug,
+}: {
+  previewMediaBySlug: Record<string, PublicPreview>;
+}) {
   const [filter, setFilter] = useState<"All" | CasStrand>("All");
+  const reduceMotion = useReducedMotion();
+  const [activeGroup, setActiveGroup] = useState(timelineGroups[0].label);
+  const [activePreview, setActivePreview] = useState<string | null>(null);
+  const timelineRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: timelineRef,
+    offset: ["start 78%", "end 32%"],
+  });
+  const lineProgress = useSpring(scrollYProgress, {
+    stiffness: 105,
+    damping: 28,
+  });
   const groups = useMemo(
     () =>
       timelineGroups.map((group) => ({
@@ -94,19 +116,24 @@ export function ExperienceTimeline() {
             </button>
           ))}
         </div>
+        <p className="timeline-active" aria-live="polite">
+          In view · {activeGroup}
+        </p>
       </div>
 
-      <div className="timeline-list">
+      <div className="timeline-list" ref={timelineRef}>
         <motion.div
           className="timeline-progress"
           aria-hidden="true"
-          initial={{ scaleY: 0 }}
-          whileInView={{ scaleY: 1 }}
-          viewport={{ once: true, amount: 0.1 }}
-          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+          style={{ scaleY: reduceMotion ? 1 : lineProgress }}
         />
         {groups.map((group) => (
-          <div className="timeline-group" key={group.label}>
+          <motion.div
+            className={`timeline-group${activeGroup === group.label ? " is-active" : ""}`}
+            key={group.label}
+            onViewportEnter={() => setActiveGroup(group.label)}
+            viewport={{ amount: 0.35 }}
+          >
             <h3>{group.label}</h3>
             <div>
               {group.items.length ? (
@@ -115,9 +142,21 @@ export function ExperienceTimeline() {
                     layout
                     key={experience.slug}
                     className={`timeline-item status-${experience.status}`}
+                    initial={{ opacity: 0, y: 14 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.45 }}
+                    transition={{
+                      duration: 0.48,
+                      ease: [0.16, 1, 0.3, 1],
+                    }}
+                    onViewportEnter={() => setActivePreview(experience.slug)}
+                    onPointerEnter={() => setActivePreview(experience.slug)}
                   >
                     <span className="timeline-dot" aria-hidden="true" />
-                    <Link href={`/experiences/${experience.slug}`}>
+                    <RouteLink
+                      href={`/experiences/${experience.slug}`}
+                      transitionLabel={experience.shortTitle}
+                    >
                       <div>
                         <h4>{experience.shortTitle}</h4>
                         <p>{experience.dateLabel}</p>
@@ -126,15 +165,32 @@ export function ExperienceTimeline() {
                         <span>{experience.strands.join(" · ")}</span>
                         <span>{experience.status.replace("-", " ")}</span>
                       </div>
-                    </Link>
+                    </RouteLink>
                   </motion.article>
                 ))
               ) : (
                 <p className="empty-filter">No {filter.toLowerCase()} entries.</p>
               )}
             </div>
-          </div>
+          </motion.div>
         ))}
+        {activePreview && previewMediaBySlug[activePreview] && (
+          <motion.div
+            className="timeline-preview"
+            aria-hidden="true"
+            key={activePreview}
+            initial={{ opacity: 0, scale: 0.88, clipPath: "inset(100% 0 0 0)" }}
+            animate={{ opacity: 1, scale: 1, clipPath: "inset(0% 0 0 0)" }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <Image
+              src={previewMediaBySlug[activePreview].src}
+              alt=""
+              fill
+              sizes="280px"
+            />
+          </motion.div>
+        )}
       </div>
       <div className="status-key" aria-label="Timeline status key">
         {["completed", "ongoing", "reflection pending", "projected"].map(

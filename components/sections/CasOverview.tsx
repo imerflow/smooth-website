@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   experiences,
@@ -10,6 +9,8 @@ import {
 } from "@/data/cas-content";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionLabel } from "@/components/ui/SectionLabel";
+import { RouteLink } from "@/components/ui/RouteLink";
+import { AnimatedStat } from "@/components/motion/AnimatedStat";
 
 const strands: CasStrand[] = ["Service", "Creativity", "Activity"];
 
@@ -88,10 +89,13 @@ export function CasOverview() {
               <ul>
                 {filtered.slice(0, 5).map((experience) => (
                   <li key={experience.slug}>
-                    <Link href={`/experiences/${experience.slug}`}>
+                    <RouteLink
+                      href={`/experiences/${experience.slug}`}
+                      transitionLabel={experience.shortTitle}
+                    >
                       <span>{experience.shortTitle}</span>
                       <small>{experience.status.replace("-", " ")}</small>
-                    </Link>
+                    </RouteLink>
                   </li>
                 ))}
               </ul>
@@ -103,7 +107,9 @@ export function CasOverview() {
       <div className="public-stats" aria-label="Selected verified statistics">
         {publicStats.map((stat) => (
           <Reveal key={stat.label}>
-            <p>{stat.value}</p>
+            <p>
+              <AnimatedStat value={stat.value} />
+            </p>
             <span>{stat.label}</span>
           </Reveal>
         ))}

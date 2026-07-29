@@ -1,23 +1,33 @@
 "use client";
 
-import type { MouseEvent, ReactNode } from "react";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
+import type {
+  MouseEvent,
+  PointerEventHandler,
+  ReactNode,
+} from "react";
+import Link from "next/link";
+import { useRouteMotion } from "@/components/motion/MotionSystem";
 
 export function RouteLink({
   href,
   children,
   className,
   ariaLabel,
+  transitionLabel,
+  dataCursor = "OPEN",
+  onPointerMove,
+  onPointerLeave,
 }: {
   href: string;
   children: ReactNode;
   className?: string;
   ariaLabel?: string;
+  transitionLabel?: string;
+  dataCursor?: string;
+  onPointerMove?: PointerEventHandler<HTMLAnchorElement>;
+  onPointerLeave?: PointerEventHandler<HTMLAnchorElement>;
 }) {
-  const router = useRouter();
-  const [transitioning, setTransitioning] = useState(false);
+  const { navigate } = useRouteMotion();
 
   const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
     if (
@@ -31,32 +41,20 @@ export function RouteLink({
     }
 
     event.preventDefault();
-    setTransitioning(true);
-    window.setTimeout(() => router.push(href), 300);
+    navigate(href, transitionLabel);
   };
 
   return (
-    <>
-      <a
-        href={href}
-        className={className}
-        aria-label={ariaLabel}
-        onClick={handleClick}
-      >
-        {children}
-      </a>
-      <AnimatePresence>
-        {transitioning && (
-          <motion.div
-            className="route-transition"
-            aria-hidden="true"
-            initial={{ scaleY: 0 }}
-            animate={{ scaleY: 1 }}
-            exit={{ scaleY: 0 }}
-            transition={{ duration: 0.38, ease: [0.76, 0, 0.24, 1] }}
-          />
-        )}
-      </AnimatePresence>
-    </>
+    <Link
+      href={href}
+      className={className}
+      aria-label={ariaLabel}
+      data-cursor={dataCursor}
+      onClick={handleClick}
+      onPointerMove={onPointerMove}
+      onPointerLeave={onPointerLeave}
+    >
+      {children}
+    </Link>
   );
 }

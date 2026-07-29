@@ -1,9 +1,9 @@
 "use client";
 
 import type { RefObject } from "react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 const menuItems = [
   ["About", "#about"],
@@ -13,6 +13,15 @@ const menuItems = [
   ["Reflections", "#reflections"],
   ["Evidence", "#evidence"],
 ] as const;
+
+function subscribeToHashChange(onStoreChange: () => void) {
+  window.addEventListener("hashchange", onStoreChange);
+  return () => window.removeEventListener("hashchange", onStoreChange);
+}
+
+function getHashSnapshot() {
+  return window.location.hash;
+}
 
 export function MenuOverlay({
   onClose,
@@ -25,23 +34,24 @@ export function MenuOverlay({
 }) {
   const firstLinkRef = useRef<HTMLAnchorElement>(null);
   const lastLinkRef = useRef<HTMLAnchorElement>(null);
+  const activeHash = useSyncExternalStore(
+    subscribeToHashChange,
+    getHashSnapshot,
+    () => "",
+  );
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     firstLinkRef.current?.focus();
-
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         onClose();
         triggerRef.current?.focus();
       }
 
-      if (
-        event.key === "Tab" &&
-        event.shiftKey &&
-        document.activeElement === triggerRef.current
-      ) {
+      if (event.key === "Tab" && event.shiftKey && document.activeElement === firstLinkRef.current) {
         event.preventDefault();
         lastLinkRef.current?.focus();
       } else if (
@@ -73,20 +83,33 @@ export function MenuOverlay({
       exit={{ opacity: 0 }}
       transition={{ duration: 0.28 }}
     >
+      <motion.div
+        className="menu-background-type"
+        aria-hidden="true"
+        initial={{ opacity: 0, x: reduceMotion ? 0 : 90 }}
+        animate={{ opacity: 0.08, x: 0 }}
+        exit={{ opacity: 0, x: -90 }}
+        transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
+      >
+        DOCUMENTED EXPERIENCE
+      </motion.div>
       <nav className="overlay-links" aria-label="Editorial navigation">
         {menuItems.map(([label, hash], index) => (
           <motion.div
             key={hash}
-            initial={{ opacity: 0, y: 28 }}
+            initial={{ opacity: 0, y: reduceMotion ? 0 : 84 }}
             animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 52 }}
             transition={{
-              duration: 0.58,
-              delay: 0.08 + index * 0.055,
+              duration: reduceMotion ? 0.18 : 0.72,
+              delay: reduceMotion ? 0 : 0.08 + index * 0.075,
               ease: [0.16, 1, 0.3, 1],
             }}
           >
             <Link
               href={`${routePrefix}${hash}`}
+              aria-current={activeHash === hash ? "location" : undefined}
+              data-cursor="OPEN"
               ref={
                 index === 0
                   ? firstLinkRef

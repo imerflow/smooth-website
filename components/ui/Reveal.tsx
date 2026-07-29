@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
@@ -16,13 +16,33 @@ export function Reveal({
   delay?: number;
   y?: number;
 }) {
+  const reduceMotion = useReducedMotion();
+
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, y }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={
+        reduceMotion
+          ? { opacity: 0 }
+          : {
+              opacity: 0,
+              y: Math.max(y, 72),
+              filter: "blur(7px)",
+              clipPath: "inset(0 0 28% 0)",
+            }
+      }
+      whileInView={
+        reduceMotion
+          ? { opacity: 1 }
+          : {
+              opacity: 1,
+              y: 0,
+              filter: "blur(0px)",
+              clipPath: "inset(0 0 0% 0)",
+            }
+      }
       viewport={{ once: true, amount: 0.18 }}
-      transition={{ duration: 0.75, delay, ease }}
+      transition={{ duration: reduceMotion ? 0.18 : 0.95, delay, ease }}
     >
       {children}
     </motion.div>

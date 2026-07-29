@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
+import { RouteLink } from "@/components/ui/RouteLink";
 import { MenuOverlay } from "./MenuOverlay";
 
 export function SiteHeader() {
@@ -22,9 +22,14 @@ export function SiteHeader() {
         transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
       >
         <nav className="header-inner" aria-label="Primary navigation">
-          <Link href="/" className="wordmark" aria-label="Iker López, home">
+          <RouteLink
+            href="/"
+            className="wordmark"
+            ariaLabel="Iker López, home"
+            transitionLabel="Portfolio index"
+          >
             IKER LÓPEZ
-          </Link>
+          </RouteLink>
           <button
             className="menu-toggle"
             type="button"

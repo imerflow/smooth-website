@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/navigation/SiteHeader";
 import { ExperienceGallery } from "@/components/media/ExperienceGallery";
 import { RouteLink } from "@/components/ui/RouteLink";
+import { ExperienceProgress } from "@/components/motion/ExperienceProgress";
+import { ScrollSection } from "@/components/motion/ScrollSection";
 import { getPublicEvidenceForExperience } from "@/data/cas-evidence.server";
 import {
   experiences,
@@ -116,6 +118,7 @@ export default async function ExperiencePage({ params }: PageProps) {
   return (
     <main className={`experience-page status-${experience.status}`} id="main-content">
       <SiteHeader />
+      <ExperienceProgress />
 
       <article>
         <header className="experience-hero">
@@ -159,7 +162,7 @@ export default async function ExperiencePage({ params }: PageProps) {
           </div>
         </header>
 
-        <section className="detail-section detail-summary">
+        <ScrollSection className="detail-section detail-summary" id="summary">
           <p className="detail-label">01 / Summary</p>
           <p>{experience.summary}</p>
           {experience.award && (
@@ -168,9 +171,9 @@ export default async function ExperiencePage({ params }: PageProps) {
               <strong>{experience.award}</strong>
             </aside>
           )}
-        </section>
+        </ScrollSection>
 
-        <section className="detail-section detail-two-column">
+        <ScrollSection className="detail-section detail-two-column" id="challenge">
           <div>
             <p className="detail-label">02 / Challenge</p>
             <p>{experience.challenge}</p>
@@ -179,9 +182,9 @@ export default async function ExperiencePage({ params }: PageProps) {
             <p className="detail-label">03 / Key learning</p>
             <p>{experience.keyLearning}</p>
           </div>
-        </section>
+        </ScrollSection>
 
-        <section className="detail-section detail-outcomes">
+        <ScrollSection className="detail-section detail-outcomes" id="outcomes">
           <p className="detail-label">04 / Learning outcomes</p>
           <div>
             {outcomes.map((outcome) => (
@@ -192,9 +195,9 @@ export default async function ExperiencePage({ params }: PageProps) {
               </article>
             ))}
           </div>
-        </section>
+        </ScrollSection>
 
-        <section className="detail-section detail-media">
+        <ScrollSection className="detail-section detail-media" id="media">
           <p className="detail-label">05 / Evidence and media</p>
           <div>
             <ExperienceGallery
@@ -205,9 +208,9 @@ export default async function ExperiencePage({ params }: PageProps) {
               privacyNote={experience.privacyNote}
             />
           </div>
-        </section>
+        </ScrollSection>
 
-        <section className="detail-section detail-evidence">
+        <ScrollSection className="detail-section detail-evidence" id="evidence-status">
           <p className="detail-label">06 / Evidence status</p>
           <div>
             <p>
@@ -241,7 +244,7 @@ export default async function ExperiencePage({ params }: PageProps) {
               not be exposed.
             </p>
           </div>
-        </section>
+        </ScrollSection>
       </article>
 
       <nav className="experience-pagination" aria-label="Experience navigation">

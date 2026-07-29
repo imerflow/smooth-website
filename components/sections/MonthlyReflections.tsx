@@ -54,10 +54,10 @@ export function MonthlyReflections() {
           <AnimatePresence mode="wait">
             <motion.article
               key={monthlyReflections[active].month}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.38 }}
+              initial={{ opacity: 0, y: 64, clipPath: "inset(100% 0 0 0)" }}
+              animate={{ opacity: 1, y: 0, clipPath: "inset(0% 0 0 0)" }}
+              exit={{ opacity: 0, y: -34, clipPath: "inset(0 0 100% 0)" }}
+              transition={{ duration: 0.72, ease: [0.16, 1, 0.3, 1] }}
               className={`status-${monthlyReflections[active].status}`}
             >
               <p>{monthlyReflections[active].month}</p>

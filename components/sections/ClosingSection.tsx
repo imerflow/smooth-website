@@ -9,6 +9,9 @@ export function ClosingSection() {
 
   return (
     <section className="closing" id="contact">
+      <span className="closing-background-type" aria-hidden="true">
+        DOCUMENTED EXPERIENCE
+      </span>
       <SectionLabel number="07" title="Closing reflection" meta="The work continues" dark />
       <div className="closing-grid">
         <Reveal className="closing-title">
